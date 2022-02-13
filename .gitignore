@@ -1,3 +1,11 @@
+
+# Created by https://www.toptal.com/developers/gitignore/api/go,goland+all
+# Edit at https://www.toptal.com/developers/gitignore?templates=go,goland+all
+
+### Go ###
+# If you prefer the allow list template instead of the deny list, see community template:
+# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
+#
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -13,3 +21,17 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# Go workspace file
+go.work
+
+### Go Patch ###
+/vendor/
+/Godeps/
+
+### GoLand ###
+.idea
+
+temp
+
+bin
