@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="go build idasen-desk - pi" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="idasen-desk" />
+    <target name="pi@192.168.1.10:22" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="--help" />
+    <kind value="PACKAGE" />
+    <package value="idasen-desk/cmd/services/cli" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/cmd/tools/cli/main.go" />
+    <option name="build_on_remote_target" value="true" />
+    <method v="2" />
+  </configuration>
+</component>
