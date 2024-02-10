@@ -1,7 +1,6 @@
 # IDÅSEN Desk - CLI
 
 ![License][license-badge]
-![Build][build-badge]
 ![Go][go-version-badge]
 ![Version][release-version-badge]
 
@@ -29,7 +28,5 @@ GLOBAL OPTIONS:
 [license-badge]: https://img.shields.io/github/license/stephensli/idasen-desk?style=flat-square
 
 [go-version-badge]: https://img.shields.io/github/go-mod/go-version/stephensli/idasen-desk?style=flat-square
-
-[build-badge]: https://img.shields.io/github/workflow/status/stephensli/idasen-desk/Go?style=flat-square
 
 [release-version-badge]: https://img.shields.io/github/v/release/stephensli/idasen-desk?style=flat-square

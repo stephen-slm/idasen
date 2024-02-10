@@ -1,11 +1,9 @@
 package main
 
 import (
+	"idasen-desk/internal/desk"
 	"math"
 	"os"
-	"time"
-
-	"idasen-desk/internal/desk"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -49,7 +47,7 @@ func run(cliArguments inputFlags) error {
 	}
 
 	if cliArguments.Target > 0 {
-		return d.MoveToTarget(cliArguments.Target / 100.0)
+		return d.MoveToTarget(cliArguments.Target)
 	}
 
 	if cliArguments.Stand {
@@ -60,9 +58,9 @@ func run(cliArguments inputFlags) error {
 		return d.MoveToTarget(cliArguments.SitHeight)
 	}
 
-	// If we got this far with no options then lets go and locate the location
-	// which is the furthest away and go for that, e.g toggle between stand
-	// and sit.
+	// If we got this far with no options then lets go and locate the location,
+	// which is the furthest away and go for that, e.g., toggle between standing
+	// and or sitting.
 	sitDifference := math.Abs(cliArguments.SitHeight - height)
 	standDifference := math.Abs(cliArguments.StandHeight - height)
 
@@ -79,12 +77,8 @@ func main() {
 	flags := inputFlags{}
 
 	app := &cli.App{
-		Name:      "Idasen CLI",
-		HelpName:  "",
-		Usage:     "A simple CLI to interface with the Idasen desk",
-		UsageText: "",
-		ArgsUsage: "",
-		Version:   "",
+		Name:  "Idasen CLI",
+		Usage: "A simple CLI to interface with the Idasen desk",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:        "verbose",
@@ -129,29 +123,9 @@ func main() {
 				Destination: &flags.Monitor,
 			},
 		},
-		EnableBashCompletion: false,
-		HideHelp:             false,
-		HideHelpCommand:      false,
-		HideVersion:          false,
-		BashComplete:         nil,
-		Before:               nil,
-		After:                nil,
 		Action: func(_ *cli.Context) error {
 			return run(flags)
 		},
-		CommandNotFound:        nil,
-		OnUsageError:           nil,
-		Compiled:               time.Time{},
-		Authors:                nil,
-		Copyright:              "",
-		Reader:                 nil,
-		Writer:                 nil,
-		ErrWriter:              nil,
-		ExitErrHandler:         nil,
-		Metadata:               nil,
-		ExtraInfo:              nil,
-		CustomAppHelpTemplate:  "",
-		UseShortOptionHandling: false,
 	}
 
 	err := app.Run(os.Args)

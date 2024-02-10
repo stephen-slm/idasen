@@ -1,6 +1,7 @@
 package desk
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -17,13 +18,13 @@ import (
 )
 
 var (
-	UuidHeight         = blue.ParseUUID("99fa0021-338a-1024-8a49-009c0215f78a")
-	UuidCommand        = blue.ParseUUID("99fa0002-338a-1024-8a49-009c0215f78a")
-	UuidReferenceInput = blue.ParseUUID("99fa0031-338a-1024-8a49-009c0215f78a")
+	UuidHeight         = blue.MustParseUUID("99fa0021-338a-1024-8a49-009c0215f78a")
+	UuidCommand        = blue.MustParseUUID("99fa0002-338a-1024-8a49-009c0215f78a")
+	UuidReferenceInput = blue.MustParseUUID("99fa0031-338a-1024-8a49-009c0215f78a")
 
 	// UuidAdvSvc - Not currently used but can be used to determine if the given device is a
 	// desk or not. If it is a desk then the deskService (services_uuid) list will contain this uuid.
-	UuidAdvSvc = blue.ParseUUID("99fa0001-338a-1024-8a49-009c0215f78a")
+	UuidAdvSvc = blue.MustParseUUID("99fa0001-338a-1024-8a49-009c0215f78a")
 )
 
 const (
@@ -34,7 +35,8 @@ const (
 type Direction int
 
 const (
-	UP Direction = iota
+	UNKNOWN Direction = iota
+	UP
 	DOWN
 )
 
@@ -62,7 +64,7 @@ func (d *Desk) Connect() (err error) {
 	mac, _ := bluetooth.ParseMAC(d.address)
 	address := bluetooth.Address{MACAddress: bluetooth.MACAddress{MAC: mac}}
 
-	if d.device, err = blue.FindDevice(address); err != nil {
+	if d.device, err = blue.ConnectToDevice(address); err != nil {
 		return err
 	}
 
@@ -104,8 +106,7 @@ func (d *Desk) GetHeight() (float64, error) {
 
 // Stop tells the desk to stop moving.
 //
-// The desk does not stop automatically unless the safety kicks in, otherwise
-// move action move the desk in steps of 1 second.
+// The desk does not stop automatically unless the safety kicks in.
 func (d *Desk) Stop() error {
 	commandChar := d.getCharacteristic(UuidCommand)
 	referenceChar := d.getCharacteristic(UuidReferenceInput)
@@ -159,14 +160,18 @@ func (d *Desk) MoveToTarget(target float64) error {
 	}
 
 	heightCharacteristic := d.getCharacteristic(UuidHeight)
-	currentHeight, _ := d.GetHeight()
-	previousHeight := currentHeight
+	currentHeight, err := d.GetHeight()
 
+	if err != nil {
+		return fmt.Errorf("failed to get desk height, %w", err)
+	}
+
+	previousHeight := currentHeight
 	willMoveUp := target > previousHeight
+
 	log.Infof("moving desk from %.2f to %.2f", previousHeight, target)
 
 	var mu sync.RWMutex
-
 	getHeight := func() float64 {
 		mu.RLock()
 		defer mu.RUnlock()
@@ -179,10 +184,15 @@ func (d *Desk) MoveToTarget(target float64) error {
 		currentHeight = value
 	}
 
-	_ = heightCharacteristic.EnableNotifications(func(buf []byte) {
+	// Use the implemented notification characteristics to get real time
+	// updates on the position of the desk. Allowing the loop iteration to only
+	// care about directional control.
+	if err = heightCharacteristic.EnableNotifications(func(buf []byte) {
 		log.Debugf("desk height notification: %f", bytesToMeters(buf))
 		setHeight(bytesToMeters(buf))
-	})
+	}); err != nil {
+		return fmt.Errorf("failed to configure desk hight notifications, %w", err)
+	}
 
 	for {
 		loopHeight := getHeight()
@@ -242,8 +252,10 @@ func (d *Desk) MoveToTarget(target float64) error {
 			operation = DOWN
 		}
 
-		if err := d.MoveDirection(operation); err != nil {
-			return err
+		// Attempt to move into the correct direction, if it faults, attempt to
+		// stop and return the errors.
+		if err = d.MoveDirection(operation); err != nil {
+			return errors.Join(err, d.Stop())
 		}
 
 		previousHeight = loopHeight
@@ -252,7 +264,7 @@ func (d *Desk) MoveToTarget(target float64) error {
 
 // MoveDirection Based on the provided direction, the desk will be told to start
 // moving up or start moving down. A move action will only occur for a 1-second
-// interval which is configured by the desk.
+// interval, which is configured by the desk.
 func (d *Desk) MoveDirection(direction Direction) error {
 	actionArgs := []uint8{0x47, 0x00}
 

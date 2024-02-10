@@ -1,16 +1,13 @@
 # Install all development cli and build artifacts to the project's `bin` directory.
 export GOBIN=$(CURDIR)/bin
 
-install-hooks: ## Install git hooks
-	@sh ./scripts/install-hooks.sh
-
 
 install-tools: ## Install all cli into bin directory.
 	@cat build/tools.go | grep "_" | awk '{print $$2}' | xargs go install
 
 .PHONY: build
 build: ## Builds all cli in this repository.
-	go install ./cmd/services/...
+	go install ./cmd/...
 
 .PHONY: clean
 clean: ## Remove build artifacts.
