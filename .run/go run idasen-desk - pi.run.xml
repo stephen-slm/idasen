@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="go build idasen-desk - pi" type="GoApplicationRunConfiguration" factoryName="Go Application">
+  <configuration default="false" name="go run idasen-desk - pi" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="idasen-desk" />
     <target name="pi@192.168.1.10:22" />
     <working_directory value="$PROJECT_DIR$" />
-    <parameters value="--help" />
+    <parameters value="--sit -v -c /home/pi/.desk.yml" />
     <EXTENSION ID="net.ashald.envfile">
       <option name="IS_ENABLED" value="false" />
       <option name="IS_SUBST" value="false" />

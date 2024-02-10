@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
 
@@ -19,6 +20,8 @@ type Configuration struct {
 // No configuration changes will happen if an error occurred during the loading
 // stage.
 func (c *Configuration) Load(absolutePath string) error {
+	log.WithField("path", absolutePath).Debug("loading configuration")
+
 	_, err := os.Stat(absolutePath)
 
 	// No reason to continue with the load operation and should use the default
@@ -43,13 +46,23 @@ func (c *Configuration) Load(absolutePath string) error {
 
 // Save attempts to save the configuration to the given absolute path.
 func (c *Configuration) Save(absolutePath string) error {
+	log.
+		WithField("path", absolutePath).
+		WithField("configuration", c).
+		Debug("saving configuration")
+
 	bytes, err := yaml.Marshal(c)
 
 	if err != nil {
 		return fmt.Errorf("failed to marhsal configuration, %w", err)
 	}
 
-	if err = os.WriteFile(absolutePath, bytes, 0777); err != nil {
+	file, err := os.Create(absolutePath)
+	if err != nil {
+		return fmt.Errorf("failed to create file, %w", err)
+	}
+
+	if _, err = file.Write(bytes); err != nil {
 		return fmt.Errorf("failed to write file contents, %w", err)
 	}
 

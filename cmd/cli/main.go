@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"idasen-desk/internal/config"
 	"idasen-desk/internal/desk"
 	"math"
 	"os"
@@ -10,6 +12,7 @@ import (
 )
 
 type inputFlags struct {
+	ConfigPath  string  `json:"config_path"`
 	Verbose     bool    `json:"verbose"`
 	Sit         bool    `json:"sit"`
 	SitHeight   float64 `json:"sit_height"`
@@ -19,20 +22,15 @@ type inputFlags struct {
 	Monitor     bool    `json:"monitor"`
 }
 
-func run(cliArguments inputFlags) error {
-	log.SetLevel(log.InfoLevel)
-
-	if cliArguments.Verbose {
-		log.SetLevel(log.DebugLevel)
+func run(cliArguments inputFlags) (err error) {
+	configuration := &config.Configuration{}
+	if err = configuration.Load(cliArguments.ConfigPath); err != nil {
+		return err
 	}
 
-	log.WithField("cli_arguments", cliArguments).Debug("input arguments")
-
-	personalDeskAddress := "C2:6D:5B:C4:17:12"
-	d := desk.NewDesk(personalDeskAddress)
-
-	if err := d.Connect(); err != nil {
-		return err
+	var d *desk.Desk
+	if d, err = desk.NewDesk(configuration.ConnectionAddress, true); err != nil {
+		return fmt.Errorf("failed to create new desk instance, %w", err)
 	}
 
 	height, baseHeightErr := d.GetHeight()
@@ -80,6 +78,13 @@ func main() {
 		Name:  "Idasen CLI",
 		Usage: "A simple CLI to interface with the Idasen desk",
 		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:        "config",
+				Aliases:     []string{"c"},
+				Usage:       "Specify the path to the configuration file.",
+				Value:       "./.desk.yml",
+				Destination: &flags.ConfigPath,
+			},
 			&cli.BoolFlag{
 				Name:        "verbose",
 				Aliases:     []string{"v"},
@@ -124,6 +129,15 @@ func main() {
 			},
 		},
 		Action: func(_ *cli.Context) error {
+			log.SetLevel(log.InfoLevel)
+
+			if flags.Verbose {
+				log.SetLevel(log.DebugLevel)
+			}
+
+			log.WithField("arguments", flags).
+				Debug("input arguments")
+
 			return run(flags)
 		},
 	}

@@ -49,14 +49,20 @@ type Desk struct {
 	serviceCharacteristics []bluetooth.DeviceCharacteristic
 }
 
-func NewDesk(address string) *Desk {
-	return &Desk{
+func NewDesk(address string, connect bool) (*Desk, error) {
+	desk := &Desk{
 		name:                   "Desk",
 		address:                address,
 		device:                 nil,
 		deskService:            nil,
 		serviceCharacteristics: nil,
 	}
+
+	if connect {
+		return desk, desk.Connect()
+	}
+
+	return desk, nil
 }
 
 // Connect will attempt to connect to the desk via bluetooth.
