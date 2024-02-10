@@ -54,9 +54,12 @@ func UniqueScan(done chan struct{}) (chan *bluetooth.ScanResult, error) {
 	// This should be a clean way to stop the chance of this scanning running
 	// forever.
 	go func() {
-		defer adapter.StopScan()
-		defer close(output)
 		<-done
+
+		close(output)
+		if err := adapter.StopScan(); err != nil {
+			log.WithError(err).Error("failed to stop adapter scan")
+		}
 	}()
 
 	return output, nil
