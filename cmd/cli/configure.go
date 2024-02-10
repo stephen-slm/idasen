@@ -6,6 +6,7 @@ import (
 	"idasen-desk/internal/config"
 	"strings"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -35,6 +36,8 @@ func configure(_ *cli.Context, cliArguments inputFlags) (err error) {
 	app := tview.NewApplication()
 	list := tview.NewList().
 		AddItem("Quit", "Press to exit", 'q', func() { app.Stop() })
+
+	list.SetBackgroundColor(tcell.ColorDefault)
 
 	var scanResults []*bluetooth.ScanResult
 
