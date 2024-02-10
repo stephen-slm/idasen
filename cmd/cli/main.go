@@ -1,26 +1,16 @@
 package main
 
 import (
+	"idasen-desk/cmd/cli/commands"
 	"os"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
 
-type inputFlags struct {
-	ConfigPath  string  `json:"config_path"`
-	Verbose     bool    `json:"verbose"`
-	Sit         bool    `json:"sit"`
-	SitHeight   float64 `json:"sit_height"`
-	Stand       bool    `json:"stand"`
-	StandHeight float64 `json:"stand_height"`
-	Target      float64 `json:"move"`
-	Monitor     bool    `json:"monitor"`
-}
-
 func main() {
 	log.SetFormatter(&log.TextFormatter{DisableTimestamp: true})
-	flags := inputFlags{}
+	flags := commands.InputFlags{}
 
 	sharedFlags := []cli.Flag{
 		&cli.BoolFlag{
@@ -39,70 +29,74 @@ func main() {
 		},
 	}
 
-	app := &cli.App{
-		Name:  "Idasen CLI",
-		Usage: "A simple CLI to interface with the Idasen desk",
+	standHeightFlag := &cli.Float64Flag{
+		Name:        "stand-height",
+		Usage:       "The target end height for standing",
+		Destination: &flags.StandHeight,
+	}
 
-		Commands: []*cli.Command{{
-			Name:  "configure",
-			Usage: "configure the device to connect to.",
-			Action: func(context *cli.Context) error {
-				return configure(context, flags)
-			},
-			OnUsageError: nil,
-			Subcommands:  nil,
-			Flags:        append([]cli.Flag{}, sharedFlags...),
-		}},
+	sitHeightFlag := &cli.Float64Flag{
+		Name:        "sit-height",
+		Usage:       "The target end height for sitting",
+		Destination: &flags.SitHeight,
+	}
 
-		Flags: append([]cli.Flag{
-			&cli.Float64Flag{
-				Name:        "stand-height",
-				Usage:       "The target end height for standing",
-				Value:       1.12,
-				Destination: &flags.StandHeight,
-			},
-			&cli.Float64Flag{
-				Name:        "sit-height",
-				Usage:       "The target end height for sitting",
-				Value:       0.74,
-				Destination: &flags.SitHeight,
-			},
+	positionFlag := &cli.Float64Flag{
+		Name:        "position",
+		Aliases:     []string{"p"},
+		Usage:       "Move the desk into the target position",
+		Required:    true,
+		Destination: &flags.Position,
+	}
 
-			&cli.BoolFlag{
-				Name:        "sit",
-				Usage:       "Put the desk into a sitting position",
-				Destination: &flags.Sit,
-			},
-			&cli.BoolFlag{
-				Name:        "stand",
-				Usage:       "Put the desk into a standing position",
-				Destination: &flags.Stand,
-			},
-			&cli.Float64Flag{
-				Name:        "target",
-				Aliases:     []string{"t"},
-				Usage:       "Move the desk into the target position",
-				Destination: &flags.Target,
-			},
-			&cli.BoolFlag{
-				Name:        "monitor",
-				Aliases:     []string{"m"},
-				Usage:       "Monitor the movement of the desk during manual movement",
-				Destination: &flags.Monitor,
-			},
-		}, sharedFlags...),
-		Action: func(_ *cli.Context) error {
-			log.SetLevel(log.InfoLevel)
-
-			if flags.Verbose {
-				log.SetLevel(log.DebugLevel)
-			}
-
-			log.WithField("arguments", flags).
-				Debug("input arguments")
-
-			return run(flags)
+	cliCommands := []*cli.Command{{
+		Name:  "configure",
+		Usage: "configure the device to connect to.",
+		Flags: append([]cli.Flag{standHeightFlag}, sharedFlags...),
+		Action: func(context *cli.Context) error {
+			return commands.Configure(context, flags)
 		},
+	}, {
+		Name:  "stand",
+		Usage: "Move the desk to the configured standing position.",
+		Flags: append([]cli.Flag{standHeightFlag}, sharedFlags...),
+		Action: func(context *cli.Context) error {
+			return commands.Stand(context, flags)
+		},
+	}, {
+		Name:  "sit",
+		Usage: "Move the desk to the configured sitting position.",
+		Flags: append([]cli.Flag{sitHeightFlag}, sharedFlags...),
+		Action: func(context *cli.Context) error {
+			return commands.Sit(context, flags)
+		},
+	}, {
+		Name:  "position",
+		Usage: "Move the desk to the provided position value.",
+		Flags: append([]cli.Flag{positionFlag}, sharedFlags...),
+		Action: func(context *cli.Context) error {
+			return commands.Position(context, flags)
+		},
+	}, {
+		Name:  "toggle",
+		Usage: "Toggle the desk height between standing and sitting.",
+		Flags: append([]cli.Flag{}, sharedFlags...),
+		Action: func(context *cli.Context) error {
+			return commands.Toggle(context, flags)
+		},
+	}, {
+		Name:  "monitor",
+		Usage: "Monitor and log the position of the desk as it moves",
+		Flags: append([]cli.Flag{}, sharedFlags...),
+		Action: func(context *cli.Context) error {
+			return commands.Monitor(context, flags)
+		},
+	}}
+
+	app := &cli.App{
+		Name:     "Idasen CLI",
+		Usage:    "A simple CLI to interface with the Idasen desk",
+		Commands: cliCommands,
 	}
 
 	err := app.Run(os.Args)

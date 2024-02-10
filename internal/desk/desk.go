@@ -49,9 +49,9 @@ type Desk struct {
 	serviceCharacteristics []bluetooth.DeviceCharacteristic
 }
 
-func NewDesk(address string, connect bool) (*Desk, error) {
+func NewDesk(name, address string, connect bool) (*Desk, error) {
 	desk := &Desk{
-		name:                   "Desk",
+		name:                   name,
 		address:                address,
 		device:                 nil,
 		deskService:            nil,
@@ -89,7 +89,7 @@ func (d *Desk) Connect() (err error) {
 
 func (d *Desk) Name() string {
 	if d.name == "" {
-		return "desk"
+		return "Desk"
 	}
 
 	return d.name
@@ -160,9 +160,9 @@ func (d *Desk) Monitor() error {
 // constraints of the device min value and max value.
 func (d *Desk) MoveToTarget(target float64) error {
 	if target > MaxHeight {
-		return targetHeightTooHigh
+		return fmt.Errorf("provided target (%.2f) exceeds maximum height (%.2f)", target, MaxHeight)
 	} else if target < MinHeight {
-		return targetHeightTooLow
+		return fmt.Errorf("provided target (%.2f) is below minimum height (%.2f)", target, MinHeight)
 	}
 
 	heightCharacteristic := d.getCharacteristic(UuidHeight)

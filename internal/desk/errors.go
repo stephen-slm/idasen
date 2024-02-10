@@ -1,7 +1,5 @@
 package desk
 
-var targetHeightTooHigh = &deskError{msg: "target height too high"}
-var targetHeightTooLow = &deskError{msg: "target height too low"}
 var deskMoveSafetyKickIn = &deskError{msg: "desk move safety kicked in."}
 var bluetoothError = &deskError{msg: "bluetooth error"}
 
