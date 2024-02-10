@@ -84,6 +84,13 @@ func main() {
 		Action: func(context *cli.Context) error {
 			return commands.Monitor(context, flags)
 		},
+	}, {
+		Name:  "height",
+		Usage: "Get the current height of the desk.",
+		Flags: append([]cli.Flag{}, sharedFlags...),
+		Action: func(context *cli.Context) error {
+			return commands.Height(context, flags)
+		},
 	}}
 
 	app := &cli.App{
