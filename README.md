@@ -9,20 +9,19 @@ NAME:
    Idasen CLI - A simple CLI to interface with the Idasen desk
 
 USAGE:
-  desk-cli [global options] command [command options] [arguments...]
+   desk-cli [global options] command [command options] [arguments...]
 
 COMMANDS:
-   help, h  Shows a list of commands or help for one command
+   configure  configure the device to connect to.
+   stand      Move the desk to the configured standing position.
+   sit        Move the desk to the configured sitting position.
+   position   Move the desk to the provided position value.
+   toggle     Toggle the desk height between standing and sitting.
+   monitor    Monitor and log the position of the desk as it moves
+   help, h    Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --verbose, -v             Enable verbose logging (default: false) [$VERBOSE]
-   --stand-height value      The target end height for standing (default: 1.12)
-   --sit-height value        The target end height for sitting (default: 0.74)
-   --sit                     Put the desk into a sitting position (default: false)
-   --stand                   Put the desk into a standing position (default: false)
-   --target value, -t value  Move the desk into the target position (default: 0)
-   --monitor, -m             Monitor the movement of the desk during manual movement (default: false)
-   --help, -h                show help (default: false)
+   --help, -h  show help (default: false)
 ```
 
 [license-badge]: https://img.shields.io/github/license/stephensli/idasen-desk?style=flat-square

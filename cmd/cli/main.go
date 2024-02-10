@@ -65,7 +65,7 @@ func main() {
 	}, {
 		Name:      "position",
 		Usage:     "Move the desk to the provided position value.",
-		ArgsUsage: "position - float: The position the desk will move to",
+		ArgsUsage: "[position]",
 		Flags:     append([]cli.Flag{}, sharedFlags...),
 		Action: func(context *cli.Context) error {
 			return commands.Position(context, flags)
