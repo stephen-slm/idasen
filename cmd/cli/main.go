@@ -1,10 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"idasen-desk/internal/config"
-	"idasen-desk/internal/desk"
-	"math"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -22,76 +18,43 @@ type inputFlags struct {
 	Monitor     bool    `json:"monitor"`
 }
 
-func run(cliArguments inputFlags) (err error) {
-	configuration := &config.Configuration{}
-	if err = configuration.Load(cliArguments.ConfigPath); err != nil {
-		return err
-	}
-
-	var d *desk.Desk
-	if d, err = desk.NewDesk(configuration.ConnectionAddress, true); err != nil {
-		return fmt.Errorf("failed to create new desk instance, %w", err)
-	}
-
-	height, baseHeightErr := d.GetHeight()
-	if baseHeightErr != nil {
-		return baseHeightErr
-	}
-
-	log.Printf("connected to %s", d.Name())
-
-	if cliArguments.Monitor {
-		return d.Monitor()
-	}
-
-	if cliArguments.Target > 0 {
-		return d.MoveToTarget(cliArguments.Target)
-	}
-
-	if cliArguments.Stand {
-		return d.MoveToTarget(cliArguments.StandHeight)
-	}
-
-	if cliArguments.Sit {
-		return d.MoveToTarget(cliArguments.SitHeight)
-	}
-
-	// If we got this far with no options then lets go and locate the location,
-	// which is the furthest away and go for that, e.g., toggle between standing
-	// and or sitting.
-	sitDifference := math.Abs(cliArguments.SitHeight - height)
-	standDifference := math.Abs(cliArguments.StandHeight - height)
-
-	if sitDifference > standDifference {
-		return d.MoveToTarget(cliArguments.SitHeight)
-	} else {
-		return d.MoveToTarget(cliArguments.StandHeight)
-	}
-
-}
-
 func main() {
 	log.SetFormatter(&log.TextFormatter{DisableTimestamp: true})
 	flags := inputFlags{}
 
+	sharedFlags := []cli.Flag{
+		&cli.BoolFlag{
+			Name:        "verbose",
+			Aliases:     []string{"v"},
+			Usage:       "Enable verbose logging",
+			EnvVars:     []string{"VERBOSE"},
+			Destination: &flags.Verbose,
+		},
+		&cli.StringFlag{
+			Name:        "config",
+			Aliases:     []string{"c"},
+			Usage:       "Specify the path to the configuration file.",
+			Value:       "./.desk.yml",
+			Destination: &flags.ConfigPath,
+		},
+	}
+
 	app := &cli.App{
 		Name:  "Idasen CLI",
 		Usage: "A simple CLI to interface with the Idasen desk",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:        "config",
-				Aliases:     []string{"c"},
-				Usage:       "Specify the path to the configuration file.",
-				Value:       "./.desk.yml",
-				Destination: &flags.ConfigPath,
+
+		Commands: []*cli.Command{{
+			Name:  "configure",
+			Usage: "configure the device to connect to.",
+			Action: func(context *cli.Context) error {
+				return configure(context, flags)
 			},
-			&cli.BoolFlag{
-				Name:        "verbose",
-				Aliases:     []string{"v"},
-				Usage:       "Enable verbose logging",
-				EnvVars:     []string{"VERBOSE"},
-				Destination: &flags.Verbose,
-			},
+			OnUsageError: nil,
+			Subcommands:  nil,
+			Flags:        append([]cli.Flag{}, sharedFlags...),
+		}},
+
+		Flags: append([]cli.Flag{
 			&cli.Float64Flag{
 				Name:        "stand-height",
 				Usage:       "The target end height for standing",
@@ -127,7 +90,7 @@ func main() {
 				Usage:       "Monitor the movement of the desk during manual movement",
 				Destination: &flags.Monitor,
 			},
-		},
+		}, sharedFlags...),
 		Action: func(_ *cli.Context) error {
 			log.SetLevel(log.InfoLevel)
 

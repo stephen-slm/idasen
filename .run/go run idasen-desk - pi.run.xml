@@ -3,7 +3,7 @@
     <module name="idasen-desk" />
     <target name="pi@192.168.1.10:22" />
     <working_directory value="$PROJECT_DIR$" />
-    <parameters value="--sit -v -c /home/pi/.desk.yml" />
+    <parameters value="configure -v -c /home/pi/.desk.yml" />
     <EXTENSION ID="net.ashald.envfile">
       <option name="IS_ENABLED" value="false" />
       <option name="IS_SUBST" value="false" />

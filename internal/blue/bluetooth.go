@@ -28,12 +28,12 @@ func ConnectToDevice(address bluetooth.Address) (*bluetooth.Device, error) {
 // unique values, stopping the chance of duplicates by address.
 //
 // `done` must be closed to stop the scanning.
-func UniqueScan(done chan struct{}) (chan bluetooth.ScanResult, error) {
+func UniqueScan(done chan struct{}) (chan *bluetooth.ScanResult, error) {
 	if enabledErr := adapter.Enable(); enabledErr != nil {
 		return nil, enabledErr
 	}
 
-	output := make(chan bluetooth.ScanResult)
+	output := make(chan *bluetooth.ScanResult)
 	uniqueTracker := map[string]struct{}{}
 
 	// Adapter scan runs in the background and will result in it running
@@ -46,7 +46,7 @@ func UniqueScan(done chan struct{}) (chan bluetooth.ScanResult, error) {
 			}
 
 			uniqueTracker[result.Address.String()] = struct{}{}
-			output <- result
+			output <- &result
 		})
 	}()
 
