@@ -4,15 +4,21 @@ import (
 	"fmt"
 	"idasen-desk/internal/config"
 	"idasen-desk/internal/desk"
+	"strconv"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
 
-func Position(_ *cli.Context, args InputFlags) (err error) {
+func Position(ctx *cli.Context, args InputFlags) (err error) {
 	configuration, err := config.Load(args.ConfigPath)
 	if err != nil {
 		return err
+	}
+
+	var targetPosition float64
+	if targetPosition, err = strconv.ParseFloat(ctx.Args().First(), 64); err != nil {
+		return fmt.Errorf("input argument must be a valid number")
 	}
 
 	var d *desk.Desk
@@ -25,5 +31,5 @@ func Position(_ *cli.Context, args InputFlags) (err error) {
 	}
 
 	log.Printf("connected to %s", d.Name())
-	return d.MoveToTarget(args.Position)
+	return d.MoveToTarget(targetPosition)
 }

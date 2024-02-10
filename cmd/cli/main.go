@@ -41,14 +41,6 @@ func main() {
 		Destination: &flags.SitHeight,
 	}
 
-	positionFlag := &cli.Float64Flag{
-		Name:        "position",
-		Aliases:     []string{"p"},
-		Usage:       "Move the desk into the target position",
-		Required:    true,
-		Destination: &flags.Position,
-	}
-
 	cliCommands := []*cli.Command{{
 		Name:  "configure",
 		Usage: "configure the device to connect to.",
@@ -71,16 +63,17 @@ func main() {
 			return commands.Sit(context, flags)
 		},
 	}, {
-		Name:  "position",
-		Usage: "Move the desk to the provided position value.",
-		Flags: append([]cli.Flag{positionFlag}, sharedFlags...),
+		Name:      "position",
+		Usage:     "Move the desk to the provided position value.",
+		ArgsUsage: "position - float: The position the desk will move to",
+		Flags:     append([]cli.Flag{}, sharedFlags...),
 		Action: func(context *cli.Context) error {
 			return commands.Position(context, flags)
 		},
 	}, {
 		Name:  "toggle",
 		Usage: "Toggle the desk height between standing and sitting.",
-		Flags: append([]cli.Flag{}, sharedFlags...),
+		Flags: append([]cli.Flag{sitHeightFlag, standHeightFlag}, sharedFlags...),
 		Action: func(context *cli.Context) error {
 			return commands.Toggle(context, flags)
 		},
