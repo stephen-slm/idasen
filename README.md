@@ -14,6 +14,12 @@ tool enables my Raspberry Pi to establish a connection with the desk and act as 
 laptops, and phones are configured with SSH certificates, facilitating remote connections. Through SSH, these devices
 can securely connect to the Raspberry Pi and control the desk.
 
+### Caveat
+
+While the underlying Bluetooth library supports Windows, Mac & Linux, the CLI only targets Linux since it was built 
+directly on a Raspberry Pi. The underlying implementation for each operating system changes based on the build target.
+This results in the build failing on anything other than Linux.
+
 ## Usage
 
 ```bash
@@ -44,6 +50,17 @@ desk help $COMMAND
 # desk help stand
 ```
 
+### Configure
+
+The configure command will display a list of bluetooth devices currently
+connected to your adapter or broadcasting. Selecting the given device will
+save the localised name and address to the configuration file for execution.
+
+
+<p>
+    <img src="./assets/monitor_configure.gif" width="100%" alt="Desk Configuration">
+</p>
+
 ### Standing
 
 Move the desk from the current position to the configured standing position.
@@ -66,17 +83,6 @@ Connect to the desk and monitor the height as it changes during manual operation
 
 <p>
     <img src="./assets/monitor_example.gif" width="100%" alt="Desk Monitoring">
-</p>
-
-### Configure
-
-The configure command will display a list of bluetooth devices currently 
-connected to your adapter or broadcasting. Selecting the given device will
-save the localised name and address to the configuration file for execution.
-
-
-<p>
-    <img src="./assets/monitor_configure.gif" width="100%" alt="Desk Configuration">
 </p>
 
 [license-badge]: https://img.shields.io/github/license/stephensli/idasen-desk?style=flat-square
