@@ -31,13 +31,21 @@ func main() {
 
 	standHeightFlag := &cli.Float64Flag{
 		Name:        "stand-height",
-		Usage:       "The target end height for standing",
+		Aliases:     nil,
+		Usage:       "The optional target end height for standing",
+		EnvVars:     nil,
+		FilePath:    "",
+		Required:    false,
+		Hidden:      false,
+		DefaultText: "Configuration File Value",
 		Destination: &flags.StandHeight,
+		HasBeenSet:  false,
 	}
 
 	sitHeightFlag := &cli.Float64Flag{
 		Name:        "sit-height",
-		Usage:       "The target end height for sitting",
+		Usage:       "The optional target end height for sitting",
+		DefaultText: "Configuration File Value",
 		Destination: &flags.SitHeight,
 	}
 
