@@ -14,11 +14,18 @@ tool enables my Raspberry Pi to establish a connection with the desk and act as 
 laptops, and phones are configured with SSH certificates, facilitating remote connections. Through SSH, these devices
 can securely connect to the Raspberry Pi and control the desk.
 
-### Caveat
+### Operating System Compatibility
 
-While the underlying Bluetooth library supports Windows, Mac & Linux, the CLI only targets Linux since it was built 
-directly on a Raspberry Pi. The underlying implementation for each operating system changes based on the build target.
-This results in the build failing on anything other than Linux.
+Although the Bluetooth library used supports Windows, Mac, and Linux, the CLI tool is specifically designed for Linux as
+it was developed on a Raspberry Pi platform. Each operating system has its own underlying implementation, tailored to
+the build target. Consequently, attempts to build the tool on platforms other than Linux may result in failure.
+
+### Configuration File
+
+The default values for the sitting and standing positions, along with the connection address for the desk, are stored
+within a YAML file located on disk at the designated `--config` location. By default, this location is relative to the
+binary execution location (`./.desk.yml`). To simplify configuration setup, you can utilize the `desk configure` command
+to generate an initial configuration file with predefined defaults.
 
 ## Usage
 
