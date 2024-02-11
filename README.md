@@ -49,7 +49,7 @@ desk help $COMMAND
 Move the desk from the current position to the configured standing position.
 
 <p>
-    <img src="./assets/monitor_stand.gif" width="75%" alt="Desk Standing">
+    <img src="./assets/monitor_stand.gif" width="100%" alt="Desk Standing">
 </p>
 
 ### Sitting
@@ -57,7 +57,7 @@ Move the desk from the current position to the configured standing position.
 Move the desk from the current position to the configured sitting position.
 
 <p>
-    <img src="./assets/monitor_sit.gif" width="75%" alt="Desk Sitting">
+    <img src="./assets/monitor_sit.gif" width="100%" alt="Desk Sitting">
 </p>
 
 ### Monitoring
@@ -65,7 +65,7 @@ Move the desk from the current position to the configured sitting position.
 Connect to the desk and monitor the height as it changes during manual operation.
 
 <p>
-    <img src="./assets/monitor_example.gif" width="75%" alt="Desk Monitoring">
+    <img src="./assets/monitor_example.gif" width="100%" alt="Desk Monitoring">
 </p>
 
 ### Configure
@@ -76,7 +76,7 @@ save the localised name and address to the configuration file for execution.
 
 
 <p>
-    <img src="./assets/monitor_configure.gif" width="75%" alt="Desk Configuration">
+    <img src="./assets/monitor_configure.gif" width="100%" alt="Desk Configuration">
 </p>
 
 [license-badge]: https://img.shields.io/github/license/stephensli/idasen-desk?style=flat-square
